@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор семейного бюджета</title>
+
+  <style>
+    /* =========================================================
+       БАЗОВЫЕ СТИЛИ
+       Весь проект находится в одном HTML-файле:
+       - HTML = структура
+       - CSS = оформление
+       - JS  = логика калькулятора
+       ========================================================= */
+
+    /* =========================================================
+       СВЕТЛАЯ ТЕМА ПО УМОЛЧАНИЮ
+       Все основные цвета вынесены в CSS-переменные.
+       Это удобно для переключения темы.
+       ========================================================= */
+    :root {
+      --bg: #f5f7fb;
+      --bg-gradient-start: #eef3ff;
+      --card: #ffffff;
+      --card-soft: #fafcff;
+      --surface: #fbfdff;
+      --input-bg: #ffffff;
+
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dbe1ea;
+
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+
+      --secondary-bg: #eef2ff;
+      --secondary-text: #1e3a8a;
+      --secondary-hover: #dfe7ff;
+
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --success-hover: #bbf7d0;
+
+      --danger-bg: #fee2e2;
+      --danger-text: #991b1b;
+      --danger-hover: #fecaca;
+
+      --mini-btn-bg: #f3f4f6;
+      --mini-btn-text: #111827;
+      --mini-btn-hover: #e5e7eb;
+
+      --progress-track: #e5e7eb;
+
+      --green: #16a34a;
+      --red: #dc2626;
+      --orange: #ea580c;
+
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+
+      /* Цвета кнопки переключения темы */
+      --theme-toggle-bg: rgba(255, 255, 255, 0.95);
+      --theme-toggle-text: #111827;
+      --theme-toggle-border: rgba(148, 163, 184, 0.35);
+      --theme-toggle-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+    }
+
+    /* =========================================================
+       ТЁМНАЯ ТЕМА
+       Активируется при добавлении атрибута:
+       body data-theme="dark"
+       ========================================================= */
+    body[data-theme="dark"] {
+      --bg: #0f172a;
+      --bg-gradient-start: #111827;
+      --card: #111827;
+      --card-soft: #172033;
+      --surface: #141d2f;
+      --input-bg: #0f172a;
+
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --border: #2a3447;
+
+      --accent: #60a5fa;
+      --accent-hover: #3b82f6;
+
+      --secondary-bg: #1e293b;
+      --secondary-text: #dbeafe;
+      --secondary-hover: #263449;
+
+      --success-bg: #123524;
+      --success-text: #86efac;
+      --success-hover: #17412c;
+
+      --danger-bg: #3a1a1a;
+      --danger-text: #fca5a5;
+      --danger-hover: #4b2020;
+
+      --mini-btn-bg: #1f2937;
+      --mini-btn-text: #f3f4f6;
+      --mini-btn-hover: #2b3647;
+
+      --progress-track: #253046;
+
+      --green: #22c55e;
+      --red: #f87171;
+      --orange: #fb923c;
+
+      --shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+
+      --theme-toggle-bg: rgba(17, 24, 39, 0.95);
+      --theme-toggle-text: #f9fafb;
+      --theme-toggle-border: rgba(148, 163, 184, 0.22);
+      --theme-toggle-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 100%);
+      color: var(--text);
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    .app-header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .app-header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .nav-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: var(--secondary-bg);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-home:hover {
+      background: var(--secondary-hover);
+      color: var(--accent-hover);
+    }
+
+    .app-header h1 {
+      margin-bottom: 8px;
+      font-size: 32px;
+    }
+
+    .app-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      transition: color 0.25s ease;
+    }
+
+    .top-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--secondary-bg);
+      color: var(--secondary-text);
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-hover);
+    }
+
+    .btn-success {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .btn-success:hover {
+      background: var(--success-hover);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.2fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card h2 {
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+      transition: color 0.25s ease;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 120px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      transition: color 0.25s ease;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      font-size: 14px;
+      outline: none;
+      background: var(--input-bg);
+      color: var(--text);
+      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .field input::placeholder {
+      color: var(--muted);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      background: var(--surface);
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .item-title {
+      font-weight: 700;
+    }
+
+    .item-meta {
+      font-size: 13px;
+      color: var(--muted);
+      transition: color 0.25s ease;
+    }
+
+    .amount {
+      font-weight: 700;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .amount.income {
+      color: var(--green);
+    }
+
+    .amount.expense {
+      color: var(--red);
+    }
+
+    .mini-btn {
+      border: none;
+      background: var(--mini-btn-bg);
+      color: var(--mini-btn-text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .mini-btn:hover {
+      background: var(--mini-btn-hover);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--card-soft);
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 700;
+      transition: color 0.25s ease;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .stat-value.positive {
+      color: var(--green);
+    }
+
+    .stat-value.negative {
+      color: var(--red);
+    }
+
+    .progress-block {
+      margin-top: 8px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+      transition: color 0.25s ease;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--progress-track);
+      overflow: hidden;
+      transition: background 0.25s ease;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .fill-green {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+
+    .fill-orange {
+      background: linear-gradient(90deg, #fb923c, #ea580c);
+    }
+
+    .fill-red {
+      background: linear-gradient(90deg, #f87171, #dc2626);
+    }
+
+    .analysis {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .analysis-box {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .analysis-box ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .category-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bar-label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      height: 14px;
+      background: var(--progress-track);
+      border-radius: 999px;
+      overflow: hidden;
+      transition: background 0.25s ease;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #60a5fa, #2563eb);
+    }
+
+    .bar-value {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+      transition: color 0.25s ease;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      transition: color 0.25s ease;
+    }
+
+    .empty-state {
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      color: var(--muted);
+      background: var(--surface);
+      font-size: 14px;
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    .file-input-hidden {
+      display: none;
+    }
+
+    /* =========================================================
+       КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+       Закреплена в правом нижнем углу экрана.
+       ========================================================= */
+    .theme-toggle {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 999;
+      width: 58px;
+      height: 58px;
+      border: 1px solid var(--theme-toggle-border);
+      border-radius: 50%;
+      background: var(--theme-toggle-bg);
+      color: var(--theme-toggle-text);
+      box-shadow: var(--theme-toggle-shadow);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition:
+        transform 0.2s ease,
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .theme-toggle:active {
+      transform: scale(0.98);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 3px solid rgba(96, 165, 250, 0.45);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .item {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+
+      .app-header h1 {
+        font-size: 26px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .theme-toggle {
+        right: 14px;
+        bottom: 14px;
+        width: 54px;
+        height: 54px;
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- =========================================================
+         ШАПКА ПРИЛОЖЕНИЯ
+         ========================================================= -->
+    <div class="app-header">
+      <div class="app-header-top">
+        <a href="index.html" class="nav-home" title="На приветственную страницу">← На главную</a>
+      </div>
+      <h1>Калькулятор семейного бюджета</h1>
+      <p>
+        Удобный калькулятор для учета ежемесячных доходов и расходов семьи.
+        Добавляйте статьи бюджета, анализируйте остаток, долю сбережений и самые затратные категории.
+      </p>
+
+      <div class="top-controls">
+        <button class="btn btn-secondary" id="loadDemoBtn">Заполнить примером</button>
+        <button class="btn btn-success" id="exportBtn">Экспорт JSON</button>
+        <button class="btn btn-secondary" id="importBtn">Импорт JSON</button>
+        <button class="btn btn-danger" id="resetBtn">Сбросить всё</button>
+        <input type="file" id="fileInput" class="file-input-hidden" accept=".json" />
+      </div>
+    </div>
+
+    <!-- =========================================================
+         ОСНОВНАЯ СЕТКА
+         Слева: доходы
+         По центру: расходы
+         Справа: итоговая аналитика
+         ========================================================= -->
+    <div class="grid">
+
+      <!-- =======================================================
+           БЛОК ДОХОДОВ
+           ======================================================= -->
+      <div class="card">
+        <h2>Доходы</h2>
+        <p class="muted">Добавляйте все источники дохода семьи за месяц.</p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="incomeName">Источник дохода</label>
+            <input id="incomeName" type="text" placeholder="Например: Зарплата мужа" />
+          </div>
+
+          <div class="field">
+            <label for="incomeAmount">Сумма</label>
+            <input id="incomeAmount" type="number" min="0" step="0.01" placeholder="Например: 85000" />
+          </div>
+
+          <div class="field">
+            <label for="incomeCategory">Категория</label>
+            <select id="incomeCategory">
+              <option value="Зарплата">Зарплата</option>
+              <option value="Подработка">Подработка</option>
+              <option value="Бизнес">Бизнес</option>
+              <option value="Пособия">Пособия</option>
+              <option value="Подарки">Подарки</option>
+              <option value="Прочее">Прочее</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary" id="addIncomeBtn">Добавить</button>
+          </div>
+        </div>
+
+        <div id="incomeList" class="items-list"></div>
+      </div>
+
+      <!-- =======================================================
+           БЛОК РАСХОДОВ
+           ======================================================= -->
+      <div class="card">
+        <h2>Расходы</h2>
+        <p class="muted">Добавляйте обязательные и переменные ежемесячные расходы.</p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="expenseName">Статья расхода</label>
+            <input id="expenseName" type="text" placeholder="Например: Продукты" />
+          </div>
+
+          <div class="field">
+            <label for="expenseAmount">Сумма</label>
+            <input id="expenseAmount" type="number" min="0" step="0.01" placeholder="Например: 25000" />
+          </div>
+
+          <div class="field">
+            <label for="expenseCategory">Категория</label>
+            <select id="expenseCategory">
+              <option value="Жильё">Жильё</option>
+              <option value="Продукты">Продукты</option>
+              <option value="Транспорт">Транспорт</option>
+              <option value="Дети">Дети</option>
+              <option value="Здоровье">Здоровье</option>
+              <option value="Кредиты">Кредиты</option>
+              <option value="Развлечения">Развлечения</option>
+              <option value="Одежда">Одежда</option>
+              <option value="Питомцы">Питомцы</option>
+              <option value="Прочее">Прочее</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="expenseType">Тип</label>
+            <select id="expenseType">
+              <option value="Обязательный">Обязательный</option>
+              <option value="Переменный">Переменный</option>
+            </select>
+          </div>
+
+          <div class="field full-width">
+            <button class="btn btn-primary" id="addExpenseBtn">Добавить расход</button>
+          </div>
+        </div>
+
+        <div id="expenseList" class="items-list"></div>
+      </div>
+
+      <!-- =======================================================
+           БЛОК СВОДКИ И АНАЛИТИКИ
+           ======================================================= -->
+      <div class="card">
+        <h2>Сводка бюджета</h2>
+
+        <div class="summary">
+          <div class="stat">
+            <div class="stat-label">Общий доход за месяц</div>
+            <div class="stat-value positive" id="totalIncome">0 ₽</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Общий расход за месяц</div>
+            <div class="stat-value negative" id="totalExpense">0 ₽</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Остаток / свободные деньги</div>
+            <div class="stat-value" id="balance">0 ₽</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Обязательные расходы</div>
+            <div class="stat-value" id="fixedExpense">0 ₽</div>
+
+            <div class="progress-block">
+              <div class="progress-label">
+                <span>Доля обязательных расходов</span>
+                <span id="fixedExpensePercentText">0%</span>
+              </div>
+              <div class="progress">
+                <div class="progress-fill fill-orange" id="fixedExpenseBar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Процент сбережений</div>
+            <div class="stat-value" id="savingsRate">0%</div>
+
+            <div class="progress-block">
+              <div class="progress-label">
+                <span>Уровень накоплений</span>
+                <span id="savingsRateText">0%</span>
+              </div>
+              <div class="progress">
+                <div class="progress-fill fill-green" id="savingsBar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analysis">
+          <div class="analysis-box">
+            <h3>Короткий анализ</h3>
+            <div id="budgetStatusText" class="muted">
+              Пока недостаточно данных для анализа.
+            </div>
+          </div>
+
+          <div class="analysis-box">
+            <h3>Расходы по категориям</h3>
+            <div id="categoryBars" class="category-bars"></div>
+          </div>
+
+          <div class="analysis-box">
+            <h3>Рекомендации</h3>
+            <ul id="tipsList">
+              <li>Добавьте доходы и расходы, чтобы получить персональный анализ.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          Данные автоматически сохраняются в браузере.
+          Все расчёты ведутся как ежемесячный семейный бюджет.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+       Находится в правом нижнем углу.
+       aria-label и title обновляются через JavaScript.
+       ========================================================= -->
+  <button
+    id="themeToggleBtn"
+    class="theme-toggle"
+    type="button"
+    aria-label="Переключить тему"
+    title="Переключить тему"
+  >
+    🌙
+  </button>
+
+  <script>
+    /* =========================================================
+       КАЛЬКУЛЯТОР СЕМЕЙНОГО БЮДЖЕТА
+       ЛОГИКА НА ЧИСТОМ JAVASCRIPT
+       БЕЗ ВНЕШНИХ БИБЛИОТЕК
+       ========================================================= */
+
+    // ---------------------------------------------------------
+    // КЛЮЧИ ДЛЯ LOCALSTORAGE
+    // STORAGE_KEY       = хранение данных бюджета
+    // THEME_STORAGE_KEY = хранение выбранной темы
+    // ---------------------------------------------------------
+    const STORAGE_KEY = "familyBudgetCalculatorData_v1";
+    const THEME_STORAGE_KEY = "familyBudgetTheme_v1";
+
+    // ---------------------------------------------------------
+    // ОСНОВНОЕ СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+    // incomes  = массив доходов
+    // expenses = массив расходов
+    // ---------------------------------------------------------
+    let state = {
+      incomes: [],
+      expenses: []
+    };
+
+    // ---------------------------------------------------------
+    // ПОЛУЧАЕМ ССЫЛКИ НА HTML-ЭЛЕМЕНТЫ
+    // ---------------------------------------------------------
+    const incomeNameEl = document.getElementById("incomeName");
+    const incomeAmountEl = document.getElementById("incomeAmount");
+    const incomeCategoryEl = document.getElementById("incomeCategory");
+    const addIncomeBtn = document.getElementById("addIncomeBtn");
+    const incomeListEl = document.getElementById("incomeList");
+
+    const expenseNameEl = document.getElementById("expenseName");
+    const expenseAmountEl = document.getElementById("expenseAmount");
+    const expenseCategoryEl = document.getElementById("expenseCategory");
+    const expenseTypeEl = document.getElementById("expenseType");
+    const addExpenseBtn = document.getElementById("addExpenseBtn");
+    const expenseListEl = document.getElementById("expenseList");
+
+    const totalIncomeEl = document.getElementById("totalIncome");
+    const totalExpenseEl = document.getElementById("totalExpense");
+    const balanceEl = document.getElementById("balance");
+    const fixedExpenseEl = document.getElementById("fixedExpense");
+    const fixedExpenseBarEl = document.getElementById("fixedExpenseBar");
+    const fixedExpensePercentTextEl = document.getElementById("fixedExpensePercentText");
+
+    const savingsRateEl = document.getElementById("savingsRate");
+    const savingsBarEl = document.getElementById("savingsBar");
+    const savingsRateTextEl = document.getElementById("savingsRateText");
+
+    const budgetStatusTextEl = document.getElementById("budgetStatusText");
+    const categoryBarsEl = document.getElementById("categoryBars");
+    const tipsListEl = document.getElementById("tipsList");
+
+    const loadDemoBtn = document.getElementById("loadDemoBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    /* ---------------------------------------------------------
+       ЭЛЕМЕНТ КНОПКИ ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+       --------------------------------------------------------- */
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+    // ---------------------------------------------------------
+    // ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ГЕНЕРАЦИИ УНИКАЛЬНОГО ID
+    // ---------------------------------------------------------
+    function generateId() {
+      return Date.now().toString() + Math.random().toString(16).slice(2);
+    }
+
+    // ---------------------------------------------------------
+    // ФОРМАТИРОВАНИЕ ЧИСЛА В РУБЛИ
+    // ---------------------------------------------------------
+    function formatCurrency(value) {
+      const number = Number(value) || 0;
+      return new Intl.NumberFormat("ru-RU", {
+        style: "currency",
+        currency: "RUB",
+        maximumFractionDigits: 0
+      }).format(number);
+    }
+
+    // ---------------------------------------------------------
+    // БЕЗОПАСНОЕ ПРЕОБРАЗОВАНИЕ В ЧИСЛО
+    // ---------------------------------------------------------
+    function toNumber(value) {
+      const num = Number(value);
+      return isNaN(num) ? 0 : num;
+    }
+
+    // ---------------------------------------------------------
+    // СОХРАНЕНИЕ ДАННЫХ В БРАУЗЕР
+    // ---------------------------------------------------------
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    // ---------------------------------------------------------
+    // ЗАГРУЗКА ДАННЫХ ИЗ БРАУЗЕРА
+    // ---------------------------------------------------------
+    function loadFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.incomes) && Array.isArray(parsed.expenses)) {
+          state = parsed;
+        }
+      } catch (error) {
+        console.error("Ошибка загрузки данных из localStorage:", error);
+      }
+    }
+
+    /* =========================================================
+       ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+       ========================================================= */
+
+    // ---------------------------------------------------------
+    // УСТАНОВКА ТЕМЫ
+    // theme = "light" или "dark"
+    // Атрибут data-theme навешивается на body
+    // ---------------------------------------------------------
+    function setTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+      updateThemeButton(theme);
+    }
+
+    // ---------------------------------------------------------
+    // ОБНОВЛЕНИЕ ВНЕШНЕГО ВИДА КНОПКИ ТЕМЫ
+    // Для светлой темы показываем луну.
+    // Для тёмной темы показываем солнце.
+    // ---------------------------------------------------------
+    function updateThemeButton(theme) {
+      const isDark = theme === "dark";
+
+      themeToggleBtn.textContent = isDark ? "☀️" : "🌙";
+      themeToggleBtn.setAttribute(
+        "aria-label",
+        isDark ? "Включить светлую тему" : "Включить тёмную тему"
+      );
+      themeToggleBtn.setAttribute(
+        "title",
+        isDark ? "Включить светлую тему" : "Включить тёмную тему"
+      );
+    }
+
+    // ---------------------------------------------------------
+    // ЗАГРУЗКА ТЕМЫ ИЗ БРАУЗЕРА
+    // Если ранее тема уже выбиралась — восстанавливаем её.
+    // Иначе ставим светлую тему.
+    // ---------------------------------------------------------
+    function loadTheme() {
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || "light";
+      setTheme(savedTheme);
+    }
+
+    // ---------------------------------------------------------
+    // ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ПО КНОПКЕ
+    // ---------------------------------------------------------
+    function toggleTheme() {
+      const currentTheme = document.body.getAttribute("data-theme") || "light";
+      const nextTheme = currentTheme === "light" ? "dark" : "light";
+      setTheme(nextTheme);
+    }
+
+    // ---------------------------------------------------------
+    // ДОБАВЛЕНИЕ ДОХОДА
+    // ---------------------------------------------------------
+    function addIncome() {
+      const name = incomeNameEl.value.trim();
+      const amount = toNumber(incomeAmountEl.value);
+      const category = incomeCategoryEl.value;
+
+      if (!name) {
+        alert("Введите название дохода.");
+        return;
+      }
+
+      if (amount <= 0) {
+        alert("Введите корректную сумму дохода.");
+        return;
+      }
+
+      state.incomes.push({
+        id: generateId(),
+        name,
+        amount,
+        category
+      });
+
+      // Очищаем поля после добавления
+      incomeNameEl.value = "";
+      incomeAmountEl.value = "";
+
+      saveToStorage();
+      render();
+    }
+
+    // ---------------------------------------------------------
+    // ДОБАВЛЕНИЕ РАСХОДА
+    // ---------------------------------------------------------
+    function addExpense() {
+      const name = expenseNameEl.value.trim();
+      const amount = toNumber(expenseAmountEl.value);
+      const category = expenseCategoryEl.value;
+      const type = expenseTypeEl.value;
+
+      if (!name) {
+        alert("Введите название расхода.");
+        return;
+      }
+
+      if (amount <= 0) {
+        alert("Введите корректную сумму расхода.");
+        return;
+      }
+
+      state.expenses.push({
+        id: generateId(),
+        name,
+        amount,
+        category,
+        type
+      });
+
+      // Очищаем поля после добавления
+      expenseNameEl.value = "";
+      expenseAmountEl.value = "";
+
+      saveToStorage();
+      render();
+    }
+
+    // ---------------------------------------------------------
+    // УДАЛЕНИЕ ДОХОДА ПО ID
+    // ---------------------------------------------------------
+    function removeIncome(id) {
+      state.incomes = state.incomes.filter(item => item.id !== id);
+      saveToStorage();
+      render();
+    }
+
+    // ---------------------------------------------------------
+    // УДАЛЕНИЕ РАСХОДА ПО ID
+    // ---------------------------------------------------------
+    function removeExpense(id) {
+      state.expenses = state.expenses.filter(item => item.id !== id);
+      saveToStorage();
+      render();
+    }
+
+    // ---------------------------------------------------------
+    // РЕНДЕР СПИСКА ДОХОДОВ
+    // ---------------------------------------------------------
+    function renderIncomeList() {
+      incomeListEl.innerHTML = "";
+
+      if (state.incomes.length === 0) {
+        incomeListEl.innerHTML = `
+          <div class="empty-state">
+            Доходы пока не добавлены.
+          </div>
+        `;
+        return;
+      }
+
+      state.incomes.forEach(item => {
+        const element = document.createElement("div");
+        element.className = "item";
+
+        element.innerHTML = `
+          <div class="item-info">
+            <div class="item-title">${escapeHtml(item.name)}</div>
+            <div class="item-meta">Категория: ${escapeHtml(item.category)}</div>
+          </div>
+
+          <div class="amount income">${formatCurrency(item.amount)}</div>
+
+          <button class="mini-btn" data-action="remove-income" data-id="${item.id}">
+            Удалить
+          </button>
+        `;
+
+        incomeListEl.appendChild(element);
+      });
+    }
+
+    // ---------------------------------------------------------
+    // РЕНДЕР СПИСКА РАСХОДОВ
+    // ---------------------------------------------------------
+    function renderExpenseList() {
+      expenseListEl.innerHTML = "";
+
+      if (state.expenses.length === 0) {
+        expenseListEl.innerHTML = `
+          <div class="empty-state">
+            Расходы пока не добавлены.
+          </div>
+        `;
+        return;
+      }
+
+      state.expenses.forEach(item => {
+        const element = document.createElement("div");
+        element.className = "item";
+
+        element.innerHTML = `
+          <div class="item-info">
+            <div class="item-title">${escapeHtml(item.name)}</div>
+            <div class="item-meta">
+              Категория: ${escapeHtml(item.category)} · Тип: ${escapeHtml(item.type)}
+            </div>
+          </div>
+
+          <div class="amount expense">${formatCurrency(item.amount)}</div>
+
+          <button class="mini-btn" data-action="remove-expense" data-id="${item.id}">
+            Удалить
+          </button>
+        `;
+
+        expenseListEl.appendChild(element);
+      });
+    }
+
+    // ---------------------------------------------------------
+    // ПОДСЧЁТЫ ПО БЮДЖЕТУ
+    // Возвращает объект со всеми вычисленными значениями.
+    // ---------------------------------------------------------
+    function calculateBudget() {
+      const totalIncome = state.incomes.reduce((sum, item) => sum + toNumber(item.amount), 0);
+      const totalExpense = state.expenses.reduce((sum, item) => sum + toNumber(item.amount), 0);
+      const fixedExpense = state.expenses
+        .filter(item => item.type === "Обязательный")
+        .reduce((sum, item) => sum + toNumber(item.amount), 0);
+
+      const variableExpense = totalExpense - fixedExpense;
+      const balance = totalIncome - totalExpense;
+
+      const savingsRate = totalIncome > 0
+        ? (balance / totalIncome) * 100
+        : 0;
+
+      const fixedExpensePercent = totalIncome > 0
+        ? (fixedExpense / totalIncome) * 100
+        : 0;
+
+      return {
+        totalIncome,
+        totalExpense,
+        fixedExpense,
+        variableExpense,
+        balance,
+        savingsRate,
+        fixedExpensePercent
+      };
+    }
+
+    // ---------------------------------------------------------
+    // РЕНДЕР СВОДКИ
+    // ---------------------------------------------------------
+    function renderSummary() {
+      const data = calculateBudget();
+
+      totalIncomeEl.textContent = formatCurrency(data.totalIncome);
+      totalExpenseEl.textContent = formatCurrency(data.totalExpense);
+      fixedExpenseEl.textContent = formatCurrency(data.fixedExpense);
+
+      balanceEl.textContent = formatCurrency(data.balance);
+      balanceEl.classList.remove("positive", "negative");
+
+      if (data.balance > 0) {
+        balanceEl.classList.add("positive");
+      } else if (data.balance < 0) {
+        balanceEl.classList.add("negative");
+      }
+
+      // Ограничиваем проценты от 0 до 100 для полос прогресса
+      const fixedPercentSafe = Math.max(0, Math.min(100, data.fixedExpensePercent));
+      const savingsPercentSafe = Math.max(0, Math.min(100, data.savingsRate));
+
+      fixedExpenseBarEl.style.width = fixedPercentSafe + "%";
+      fixedExpensePercentTextEl.textContent = data.fixedExpensePercent.toFixed(1) + "%";
+
+      savingsBarEl.style.width = savingsPercentSafe + "%";
+      savingsRateTextEl.textContent = data.savingsRate.toFixed(1) + "%";
+      savingsRateEl.textContent = data.savingsRate.toFixed(1) + "%";
+    }
+
+    // ---------------------------------------------------------
+    // РЕНДЕР КОРОТКОГО АНАЛИЗА
+    // ---------------------------------------------------------
+    function renderStatusAnalysis() {
+      const data = calculateBudget();
+
+      if (state.incomes.length === 0 && state.expenses.length === 0) {
+        budgetStatusTextEl.textContent = "Пока недостаточно данных для анализа.";
+        return;
+      }
+
+      let text = "";
+
+      if (data.totalIncome === 0 && data.totalExpense > 0) {
+        text = "У вас есть расходы, но не добавлены доходы. Внесите доходы, чтобы увидеть реальную картину бюджета.";
+      } else if (data.balance < 0) {
+        text = "Расходы превышают доходы. Семейный бюджет сейчас дефицитный, стоит срочно пересмотреть траты.";
+      } else if (data.balance === 0) {
+        text = "Бюджет находится на нуле: все доходы уходят на расходы. Подушки безопасности пока не формируется.";
+      } else if (data.savingsRate < 10) {
+        text = "Бюджет положительный, но уровень накоплений низкий. Желательно увеличить свободный остаток хотя бы до 10–20% от дохода.";
+      } else if (data.savingsRate >= 10 && data.savingsRate < 20) {
+        text = "Ситуация в целом стабильная. Вы уже сохраняете часть дохода, но бюджет можно сделать ещё устойчивее.";
+      } else {
+        text = "У семьи хороший финансовый баланс. Доходы покрывают расходы, а процент накоплений находится на достойном уровне.";
+      }
+
+      budgetStatusTextEl.textContent = text;
+    }
+
+    // ---------------------------------------------------------
+    // ГРУППИРОВКА РАСХОДОВ ПО КАТЕГОРИЯМ
+    // ---------------------------------------------------------
+    function getExpenseCategoriesSummary() {
+      const categoryMap = {};
+
+      state.expenses.forEach(item => {
+        const key = item.category || "Прочее";
+        categoryMap[key] = (categoryMap[key] || 0) + toNumber(item.amount);
+      });
+
+      const result = Object.entries(categoryMap).map(([category, amount]) => ({
+        category,
+        amount
+      }));
+
+      // Сортировка по убыванию суммы
+      result.sort((a, b) => b.amount - a.amount);
+
+      return result;
+    }
+
+    // ---------------------------------------------------------
+    // РЕНДЕР БЛОКА "РАСХОДЫ ПО КАТЕГОРИЯМ"
+    // ---------------------------------------------------------
+    function renderCategoryBars() {
+      categoryBarsEl.innerHTML = "";
+
+      const categories = getExpenseCategoriesSummary();
+
+      if (categories.length === 0) {
+        categoryBarsEl.innerHTML = `
+          <div class="empty-state">
+            Добавьте расходы, чтобы увидеть распределение по категориям.
+          </div>
+        `;
+        return;
+      }
+
+      const maxAmount = Math.max(...categories.map(item => item.amount), 1);
+
+      categories.forEach(item => {
+        const percent = (item.amount / maxAmount) * 100;
+
+        const row = document.createElement("div");
+        row.className = "bar-row";
+
+        row.innerHTML = `
+          <div class="bar-label">${escapeHtml(item.category)}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${percent}%"></div>
+          </div>
+          <div class="bar-value">${formatCurrency(item.amount)}</div>
+        `;
+
+        categoryBarsEl.appendChild(row);
+      });
+    }
+
+    // ---------------------------------------------------------
+    // ФОРМИРОВАНИЕ РЕКОМЕНДАЦИЙ
+    // ---------------------------------------------------------
+    function renderTips() {
+      tipsListEl.innerHTML = "";
+
+      const data = calculateBudget();
+      const categories = getExpenseCategoriesSummary();
+      const tips = [];
+
+      if (state.incomes.length === 0 && state.expenses.length === 0) {
+        tips.push("Добавьте хотя бы несколько доходов и расходов, чтобы увидеть рекомендации.");
+      } else {
+        if (data.balance < 0) {
+          tips.push("Расходы выше доходов — начните с сокращения необязательных трат.");
+        }
+
+        if (data.fixedExpensePercent > 60) {
+          tips.push("Обязательные расходы занимают более 60% дохода. Это высокий уровень финансовой нагрузки.");
+        }
+
+        if (data.savingsRate < 0) {
+          tips.push("Сейчас накопления не формируются. Важно сначала вывести бюджет хотя бы в ноль.");
+        } else if (data.savingsRate >= 0 && data.savingsRate < 10) {
+          tips.push("Постарайтесь откладывать минимум 10% дохода как финансовую подушку.");
+        } else if (data.savingsRate >= 10 && data.savingsRate < 20) {
+          tips.push("У вас уже есть хороший базовый уровень накоплений. Следующая цель — 20% от дохода.");
+        } else if (data.savingsRate >= 20) {
+          tips.push("Отличный уровень накоплений. Можно подумать о долгосрочных целях и инвестициях.");
+        }
+
+        if (categories.length > 0) {
+          const topCategory = categories[0];
+          tips.push(`Самая затратная категория сейчас: "${topCategory.category}" — ${formatCurrency(topCategory.amount)}.`);
+        }
+
+        const variableExpenses = state.expenses.filter(item => item.type === "Переменный");
+        const variableTotal = variableExpenses.reduce((sum, item) => sum + toNumber(item.amount), 0);
+
+        if (data.totalIncome > 0) {
+          const variablePercent = (variableTotal / data.totalIncome) * 100;
+          if (variablePercent > 30) {
+            tips.push("Переменные расходы занимают заметную часть дохода. Здесь чаще всего легче всего найти точки экономии.");
+          }
+        }
+
+        if (state.incomes.length === 1) {
+          tips.push("У семьи только один источник дохода. Для устойчивости полезно иметь дополнительный источник.");
+        }
+      }
+
+      // Защита от пустого списка рекомендаций
+      if (tips.length === 0) {
+        tips.push("Ваш бюджет выглядит сбалансированным. Продолжайте вести учет регулярно.");
+      }
+
+      tips.forEach(tip => {
+        const li = document.createElement("li");
+        li.textContent = tip;
+        tipsListEl.appendChild(li);
+      });
+    }
+
+    // ---------------------------------------------------------
+    // ЭКРАНИРОВАНИЕ HTML
+    // Чтобы пользовательский текст не ломал верстку
+    // ---------------------------------------------------------
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    // ---------------------------------------------------------
+    // ОБЩИЙ РЕНДЕР ВСЕГО ИНТЕРФЕЙСА
+    // ---------------------------------------------------------
+    function render() {
+      renderIncomeList();
+      renderExpenseList();
+      renderSummary();
+      renderStatusAnalysis();
+      renderCategoryBars();
+      renderTips();
+    }
+
+    // ---------------------------------------------------------
+    // ЗАГРУЗКА ДЕМОНСТРАЦИОННЫХ ДАННЫХ
+    // Полезно, чтобы сразу увидеть, как работает калькулятор.
+    // ---------------------------------------------------------
+    function loadDemoData() {
+      state = {
+        incomes: [
+          { id: generateId(), name: "Зарплата мужа", amount: 95000, category: "Зарплата" },
+          { id: generateId(), name: "Зарплата жены", amount: 72000, category: "Зарплата" },
+          { id: generateId(), name: "Подработка", amount: 12000, category: "Подработка" }
+        ],
+        expenses: [
+          { id: generateId(), name: "Ипотека / аренда", amount: 35000, category: "Жильё", type: "Обязательный" },
+          { id: generateId(), name: "Коммунальные услуги", amount: 8500, category: "Жильё", type: "Обязательный" },
+          { id: generateId(), name: "Продукты", amount: 26000, category: "Продукты", type: "Обязательный" },
+          { id: generateId(), name: "Бензин и транспорт", amount: 9000, category: "Транспорт", type: "Обязательный" },
+          { id: generateId(), name: "Школа / кружки", amount: 11000, category: "Дети", type: "Обязательный" },
+          { id: generateId(), name: "Аптека и здоровье", amount: 5000, category: "Здоровье", type: "Переменный" },
+          { id: generateId(), name: "Кафе и развлечения", amount: 7000, category: "Развлечения", type: "Переменный" },
+          { id: generateId(), name: "Одежда", amount: 6000, category: "Одежда", type: "Переменный" },
+          { id: generateId(), name: "Питомцы", amount: 4000, category: "Питомцы", type: "Переменный" }
+        ]
+      };
+
+      saveToStorage();
+      render();
+    }
+
+    // ---------------------------------------------------------
+    // СБРОС ВСЕХ ДАННЫХ
+    // ---------------------------------------------------------
+    function resetAllData() {
+      const confirmed = confirm("Вы точно хотите удалить все доходы и расходы?");
+      if (!confirmed) return;
+
+      state = {
+        incomes: [],
+        expenses: []
+      };
+
+      saveToStorage();
+      render();
+    }
+
+    // ---------------------------------------------------------
+    // ЭКСПОРТ ДАННЫХ В JSON-ФАЙЛ
+    // ---------------------------------------------------------
+    function exportToJson() {
+      const dataStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "family-budget-data.json";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------------------------------------------------------
+    // ИМПОРТ ДАННЫХ ИЗ JSON-ФАЙЛА
+    // ---------------------------------------------------------
+    function importFromJson(file) {
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+
+          if (!parsed || !Array.isArray(parsed.incomes) || !Array.isArray(parsed.expenses)) {
+            alert("Неверный формат файла.");
+            return;
+          }
+
+          state = {
+            incomes: parsed.incomes,
+            expenses: parsed.expenses
+          };
+
+          saveToStorage();
+          render();
+          alert("Данные успешно импортированы.");
+        } catch (error) {
+          console.error(error);
+          alert("Не удалось прочитать JSON-файл.");
+        }
+      };
+
+      reader.readAsText(file, "UTF-8");
+    }
+
+    // ---------------------------------------------------------
+    // ОБРАБОТКА КЛИКОВ НА КНОПКИ УДАЛЕНИЯ ЧЕРЕЗ DELEGATION
+    // Это удобнее, чем вешать отдельный обработчик на каждый элемент.
+    // ---------------------------------------------------------
+    document.addEventListener("click", function(event) {
+      const action = event.target.dataset.action;
+      const id = event.target.dataset.id;
+
+      if (action === "remove-income" && id) {
+        removeIncome(id);
+      }
+
+      if (action === "remove-expense" && id) {
+        removeExpense(id);
+      }
+    });
+
+    // ---------------------------------------------------------
+    // СОБЫТИЯ ДЛЯ КНОПОК
+    // ---------------------------------------------------------
+    addIncomeBtn.addEventListener("click", addIncome);
+    addExpenseBtn.addEventListener("click", addExpense);
+
+    loadDemoBtn.addEventListener("click", loadDemoData);
+    exportBtn.addEventListener("click", exportToJson);
+    importBtn.addEventListener("click", () => fileInput.click());
+    resetBtn.addEventListener("click", resetAllData);
+
+    // Кнопка смены темы
+    themeToggleBtn.addEventListener("click", toggleTheme);
+
+    fileInput.addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        importFromJson(file);
+      }
+      // Сбрасываем значение input, чтобы можно было повторно выбрать тот же файл
+      event.target.value = "";
+    });
+
+    // ---------------------------------------------------------
+    // ДОБАВЛЕНИЕ ПО НАЖАТИЮ ENTER
+    // ---------------------------------------------------------
+    incomeAmountEl.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") addIncome();
+    });
+
+    expenseAmountEl.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") addExpense();
+    });
+
+    // ---------------------------------------------------------
+    // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
+    // Сначала загружаем тему, потом данные бюджета.
+    // ---------------------------------------------------------
+    function init() {
+      loadTheme();
+      loadFromStorage();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
