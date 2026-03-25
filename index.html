@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Приветственная страница курса: калькулятор семейного бюджета и учебные HTML-проекты." />
+  <title>Курс — главная</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --bg-gradient-start: #eef3ff;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dbe1ea;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 48px 24px 40px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(37, 99, 235, 0.1);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      margin: 0 0 16px;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 0 auto 28px;
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary:hover {
+      border-color: #c7d2fe;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin: 48px 0 20px;
+      text-align: center;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .feature {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .feature h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .card-main {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .card-main h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .card-main p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    details.more {
+      margin-top: 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    details.more summary {
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .more-list {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .more-list li {
+      margin-bottom: 10px;
+    }
+
+    .more-list a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .more-list a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-note {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <span class="hero-badge">Учебный проект</span>
+      <h1>Добро пожаловать</h1>
+      <p>
+        Здесь собраны материалы курса: главный инструмент — калькулятор семейного бюджета
+        с сохранением в браузере, экспортом и подсказками. Ниже — быстрый переход и краткий обзор возможностей.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="калькулятор2.HTML">Открыть калькулятор</a>
+        <a class="btn btn-secondary" href="#features">Что умеет приложение</a>
+      </div>
+    </header>
+
+    <h2 id="features">Возможности калькулятора</h2>
+    <div class="features">
+      <article class="feature">
+        <div class="feature-icon">📊</div>
+        <h3>Доходы и расходы</h3>
+        <p>Добавляйте статьи с категориями, разделяйте фиксированные и переменные траты.</p>
+      </article>
+      <article class="feature">
+        <div class="feature-icon">💡</div>
+        <h3>Аналитика</h3>
+        <p>Баланс, доля сбережений, прогресс по категориям и персональные рекомендации.</p>
+      </article>
+      <article class="feature">
+        <div class="feature-icon">💾</div>
+        <h3>Данные под рукой</h3>
+        <p>Автосохранение в браузере, демо-заполнение, импорт и экспорт в JSON.</p>
+      </article>
+    </div>
+
+    <div class="card-main">
+      <h3>Калькулятор семейного бюджета</h3>
+      <p>Полноценное приложение в одном HTML-файле: тёмная тема, подсказки и удобные формы.</p>
+      <a class="btn btn-primary" href="калькулятор2.HTML">Перейти к работе с бюджетом</a>
+    </div>
+
+    <details class="more">
+      <summary>Другие HTML-страницы из папки курса</summary>
+      <ul class="more-list">
+        <li><a href="помошник маркетплейсер1.HTML">Помошник маркетплейсер 1</a></li>
+        <li><a href="Помошник маркетплейсер2.HTML">Помошник маркетплейсер 2</a></li>
+        <li><a href="Помошник маркетплейсер3.HTML">Помощник маркетплейсер 3</a></li>
+        <li><a href="Помошник маркетплейсер4.HTML">Помощник маркетплейсер 4</a></li>
+        <li><a href="Помошник маркетплейсер5.HTML">Помощник маркетплейсер 5</a></li>
+        <li><a href="помошник6.HTML">Помощник 6</a></li>
+        <li><a href="помошник7.HTML">Помощник 7</a></li>
+        <li><a href="сайт NEWGOLD1.HTML">Сайт NEWGOLD 1</a></li>
+        <li><a href="сайт NEWGOLD2.HTML">Сайт NEWGOLD 2</a></li>
+        <li><a href="свйт 3.HTML">Сайт 3</a></li>
+        <li><a href="сайт4.HTML">Сайт 4</a></li>
+        <li><a href="сайт5.HTML">Сайт 5</a></li>
+        <li><a href="сайт6.HTML">Сайт 6</a></li>
+        <li><a href="gjcktlybq.HTML">Доп. страница</a></li>
+      </ul>
+    </details>
+
+    <p class="footer-note">Откройте <code>index.html</code> в браузере или задеплойте папку на любой статический хостинг.</p>
+  </div>
+</body>
+</html>
